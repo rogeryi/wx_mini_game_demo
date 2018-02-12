@@ -171,8 +171,8 @@ if (typeof window !== 'undefined') {
   window.wxhelper = wxhelper;
 } else if (typeof GameGlobal !== 'undefined') {
   GameGlobal.wxhelper = wxhelper;
-  GameGlobal.window = GameGlobal
-  window.top = GameGlobal.parent = window
+  GameGlobal.window = GameGlobal;
+  window.top = GameGlobal.parent = window;
 } else {
   console.log("Cannot find any global object!");
 }
