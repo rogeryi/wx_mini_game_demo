@@ -10,3 +10,9 @@
 2. Canvas Compute，修改自 [GUIMark3 Compute][4]，模拟鸟群的运动，包含大量的物理运动计算，实际上是测试 JavaScript 的计算性能；
 3. WebGL Compute，Canvas Compute 的 WebGL 版本，用 WebGL 绘制点取代 Canvas 绘制短线段；
 4. WebGL Aqua，修改自 [WebGL Aquarium][2]，绘制的场景有一定的复杂度，包含了约 30 个模型；
+
+[1]: http://www.craftymind.com/guimark3/
+[2]: https://webglsamples.org/aquarium/aquarium.html
+[3]: http://www.craftymind.com/factory/guimark3/bitmap/GM3_JS_Bitmap.html
+[4]: http://www.craftymind.com/factory/guimark3/compute/GM3_JS_Compute.html
+[5]: https://github.com/rogeryi/wx_mini_game_demo
