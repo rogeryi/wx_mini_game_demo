@@ -214,20 +214,18 @@ tdl.require = function(rule) {
   // not always show up. Calling it here seems to fix that as long as we
   // actually ask for the length, at least in FF 3.5.1 It would be nice to
   // figure out why.
-  if (!wxhelper.IsWxGameEnv()) {
-    var dummy = document.getElementsByTagName('script').length;
-    // if the object already exists we do not need do do anything
-    if (tdl.getObjectByName(rule)) {
-      return;
-    }
-    var path = tdl.getPathFromRule_(rule);
-    if (path) {
-      // console.log("require " + rule + ", path:" + path);
-      tdl.included_[path] = true;
-      tdl.writeScripts_();
-    } else {
-      throw new Error('tdl.require could not find: ' + rule);
-    }
+  var dummy = document.getElementsByTagName('script').length;
+  // if the object already exists we do not need do do anything
+  if (tdl.getObjectByName(rule)) {
+    return;
+  }
+  var path = tdl.getPathFromRule_(rule);
+  if (path) {
+    // console.log("require " + rule + ", path:" + path);
+    tdl.included_[path] = true;
+    tdl.writeScripts_();
+  } else {
+    throw new Error('tdl.require could not find: ' + rule);
   }
 };
 
