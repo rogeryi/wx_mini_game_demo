@@ -23,7 +23,9 @@ var gameTime;
 // "small"  - total image draw call ~1000 in 1080p
 // "medium" - total image draw call ~2000 in 1080p
 // "huge"   - total image draw call ~4000 in 1080p
+// "monster"- total image draw call ~7000 in 1080p
 var enemiesCount = "small";
+var shipCountRatio = 500;
 
 function loadAssetsAndStart() {
 	var preloaded = 0;
@@ -57,6 +59,14 @@ function init() {
 		context = canvas.getContext('2d');
 
 		gameTime = wxhelper.TimeUtil.getTimer() + 30000;
+
+		shipCountRatio = 500;
+		if (enemiesCount == "medium")
+			shipCountRatio = 200;
+		else if (enemiesCount == "huge")
+			shipCountRatio = 100;
+		else if (enemiesCount == "monster")
+			shipCountRatio = 50;
 
 		// raf to start the render loop
 		requestAnimationFrame(loop);
@@ -187,12 +197,6 @@ var enemyIndex = 0;
 var enemies = [];
 
 function drawEnemies(diff){
-	var shipCountRatio = 500;
-	if (enemiesCount == "medium")
-		shipCountRatio = 200;
-	else if (enemiesCount == "huge")
-		shipCountRatio = 100;
-
 	var shipCount = Math.floor(gameTime / shipCountRatio);
 	while(enemyIndex < shipCount){
 		enemyIndex++;
