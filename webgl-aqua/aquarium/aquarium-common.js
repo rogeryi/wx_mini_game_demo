@@ -145,7 +145,7 @@ var g_viewSettings = [
 
 var g = {
   globals: {
-    fishSetting: 3,
+    fishSetting: 2,
     drawLasers: true,
 	  width: 1080,
 	  height: 1920
@@ -260,7 +260,7 @@ window.SetupEnv = function (uiObj) {
     if (!obj[ui.name]) {
       obj[ui.name] = ui.value;
     }
-  }  
+  }
 }
 
 window.setSettings = function setSettings(settings) {

@@ -1084,7 +1084,7 @@ function initialize() {
     return changed;
   }
 
-  let windowSize = wxhelper.GetCanvasSizeUseWindowRatio(720);
+  let windowSize = wxhelper.GetWindowSizeInPx();
   setCanvasSize(canvas, windowSize.width, windowSize.height);
 
   function render() {
@@ -1228,12 +1228,14 @@ function initialize() {
 
     // Draw Fishes.
     Log("--Draw Fish---------------------------------------");
+    let drawFishNum = 0;
 
     gl.enable(gl.BLEND);
     for (var ff = 0; ff < g_fishTable.length; ++ff) {
       var fishInfo = g_fishTable[ff];
       var fishName = fishInfo.name;
       var numFish = fishInfo.num[g.globals.fishSetting];
+      drawFishNum += numFish;
       var matMul = fast.matrix4.mul;
       var matInverse = fast.matrix4.inverse;
       var matScaling = fast.matrix4.scaling;
@@ -1311,6 +1313,9 @@ function initialize() {
         }
       }
     }
+
+    Log("--Fish Number: " + drawFishNum +
+      "---------------------------------------");
 
     if (g.options.tank.enabled) {
       if (g_sceneGroups.inner) {
@@ -1547,7 +1552,10 @@ function initialize() {
     // turn off logging after 1 frame.
     g_logGLCalls = false;
 
-    g_fpsTimer.update();
+    let result = g_fpsTimer.update();
+    if (result.framerate > 0) {
+      console.log("WebGL Aqua framerate:" + result.framerate + "fps");
+    }
 
     if (!g_drawOnce) {
       g_requestId = tdl.webgl.requestAnimationFrame(render, canvas);
