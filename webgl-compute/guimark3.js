@@ -51,7 +51,10 @@ var vertexColorBuffer;
 
 function initVertexBuffers(gl, first) {
   // Bind the buffer object to target
-  gl.bindBuffer(gl.ARRAY_BUFFER, vertexColorBuffer);
+  if (first) {
+  	gl.bindBuffer(gl.ARRAY_BUFFER, vertexColorBuffer);
+  }
+
   gl.bufferData(gl.ARRAY_BUFFER, verticesColors, gl.DYNAMIC_DRAW);
 
   if (first) {
@@ -64,7 +67,7 @@ function initVertexBuffers(gl, first) {
   }
 
   // Unbind the buffer object
-  gl.bindBuffer(gl.ARRAY_BUFFER, null);
+  // gl.bindBuffer(gl.ARRAY_BUFFER, null);
 }
 
 function init(){

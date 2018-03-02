@@ -32,7 +32,7 @@ var g_scenes = {};  // each of the models
 var g_sceneGroups = {};  // the placement of the models
 var g_fog = true;
 var g_requestId;
-var g_numFish = [1, 100, 500, 1000, 5000, 10000, 15000, 20000, 25000, 30000];
+var g_numFish = [100, 200, 500, 1000, 5000, 10000, 15000, 20000, 25000, 30000];
 
 //g_debug = true;
 //g_drawOnce = true;
@@ -1084,6 +1084,8 @@ function initialize() {
     return changed;
   }
 
+  // GetCanvasSizeUseWindowRatio can be used to try different rendering resolution
+  // let windowSize = wxhelper.GetCanvasSizeUseWindowRatio(600);
   let windowSize = wxhelper.GetWindowSizeInPx();
   setCanvasSize(canvas, windowSize.width, windowSize.height);
 
@@ -1554,7 +1556,10 @@ function initialize() {
 
     let result = g_fpsTimer.update();
     if (result.framerate > 0) {
-      console.log("WebGL Aqua framerate:" + result.framerate + "fps");
+      console.log("WebGL Aqua framerate:" + result.framerate + "fps" +
+        ", program:"   + getUsedProgramCount() / result.frames +
+        ", draw call:" + getDrawCallCount() / result.frames);
+      resetDrawStatics();
     }
 
     if (!g_drawOnce) {
