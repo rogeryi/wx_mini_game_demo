@@ -150,16 +150,32 @@ tdl.webgl.create3DContext = function(canvas, opt_attribs) {
     opt_attribs = {alpha:false};
     tdl.misc.applyUrlSettings(opt_attribs, 'webgl');
   }
-  var names = ["webgl", "experimental-webgl"];
+
   var context = null;
-  for (var ii = 0; ii < names.length; ++ii) {
+
+  if (wxhelper.TryUseWebGL2()) {
     try {
-      context = canvas.getContext(names[ii], opt_attribs);
-    } catch(e) {}
-    if (context) {
-      break;
+      context = canvas.getContext("webgl2", opt_attribs);
+      wxhelper.SetCanUseWebGL2(true);
+      console.log("Support webgl2");
+    } catch(e) {
+      wxhelper.SetCanUseWebGL2(false);
+      console.log("Cannot support webgl2");
     }
   }
+
+  if (!context) {
+    var names = ["webgl", "experimental-webgl"];
+    for (var ii = 0; ii < names.length; ++ii) {
+      try {
+        context = canvas.getContext(names[ii], opt_attribs);
+      } catch(e) {}
+      if (context) {
+        break;
+      }
+    }
+  }
+
   if (context) {
     if (!tdl.webgl.glEnums) {
       tdl.webgl.init(context);
@@ -226,7 +242,7 @@ tdl.webgl.runHandlers_ = function(handlers) {
 };
 
 tdl.webgl.registerContextLostHandler = function(
-    canvas, handler, opt_sysHandler) { 
+    canvas, handler, opt_sysHandler) {
   tdl.webgl.setupCanvas_(canvas);
   if (!canvas.tdl.contextLostHandlers) {
     canvas.tdl.contextLostHandlers = [[],[]];

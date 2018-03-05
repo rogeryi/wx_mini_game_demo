@@ -32,7 +32,7 @@ var g_scenes = {};  // each of the models
 var g_sceneGroups = {};  // the placement of the models
 var g_fog = true;
 var g_requestId;
-var g_numFish = [100, 200, 500, 1000, 5000, 10000, 15000, 20000, 25000, 30000];
+var g_numFish = [100, 200, 500, 1000, 2000, 5000, 10000, 15000, 20000, 25000, 30000];
 
 //g_debug = true;
 //g_drawOnce = true;
@@ -223,6 +223,155 @@ var g_sceneInfo = [
     name: "BigFishB",
     program: [
       "fishVertexShader",
+      "fishNormalMapFragmentShader"
+    ]
+  },
+  {
+    name: "Arch"
+  },
+  {
+    name: "Coral"
+  },
+  {
+    name: "CoralStoneA"
+  },
+  {
+    name: "CoralStoneB"
+  },
+  {
+    name: "EnvironmentBox",
+    fog: false,
+    group: "outside",
+    program: [
+      "diffuseVertexShader",
+      "diffuseFragmentShader"
+    ]
+  },
+  {
+    name: "FloorBase_Baked"
+  },
+  {
+    name: "FloorCenter"
+  },
+  {
+    name: "GlobeBase",
+    fog: false,
+    program: [
+      "diffuseVertexShader",
+      "diffuseFragmentShader"
+    ]
+  },
+  {
+    name: "GlobeInner",
+    group: "inner",
+    program: [
+      "innerRefractionMapVertexShader",
+      "innerRefractionMapFragmentShader"
+    ]
+  },
+  {
+    name: "GlobeOuter",
+    group: "outer",
+    blend: true,
+    program: [
+      "outerRefractionMapVertexShader",
+      "outerRefractionMapFragmentShader"
+    ]
+  },
+  {
+    name: "RockA"
+  },
+  {
+    name: "RockB"
+  },
+  {
+    name: "RockC"
+  },
+  {
+    name: "RuinColumn"
+  },
+  {
+    name: "Skybox",
+    fog: false,
+    group: "outside",
+    program: [
+      "diffuseVertexShader",
+      "diffuseFragmentShader"
+    ]
+  },
+  {
+    name: "Stone"
+  },
+  {
+    name: "Stones"
+  },
+  {
+    name: "SunknShip"
+  },
+  {
+    name: "SunknSub"
+  },
+  {
+    name: "SupportBeams",
+    group: "outside",
+    fog: false
+  },
+  {
+    name: "SeaweedA",
+    blend: true,
+    group: "seaweed",
+    program: [
+      "seaweedVertexShader",
+      "seaweedFragmentShader",
+    ]
+  },
+  {
+    name: "SeaweedB",
+    blend: true,
+    group: "seaweed",
+    program: [
+      "seaweedVertexShader",
+      "seaweedFragmentShader",
+    ]
+  },
+  {
+    name: "TreasureChest"
+  }
+];
+
+var g_sceneInfoInstance = [
+  {
+    name: "SmallFishA",
+    program: [
+      "fishInstanceVertexShader",
+      "fishReflectionFragmentShader"
+    ]
+  },
+  {
+    name: "MediumFishA",
+    program: [
+      "fishInstanceVertexShader",
+      "fishNormalMapFragmentShader"
+    ]
+  },
+  {
+    name: "MediumFishB",
+    program: [
+      "fishInstanceVertexShader",
+      "fishReflectionFragmentShader"
+    ]
+  },
+  {
+    name: "BigFishA",
+    program: [
+      "fishInstanceVertexShader",
+      "fishNormalMapFragmentShader"
+    ]
+  },
+  {
+    name: "BigFishB",
+    program: [
+      "fishInstanceVertexShader",
       "fishNormalMapFragmentShader"
     ]
   },
@@ -806,6 +955,10 @@ function main() {
     gl = tdl.webgl.makeDebugContext(gl, undefined, LogGLCall);
   }
 
+  if (wxhelper.CanUseWebGL2()) {
+    console.log("Use instance rendering!");
+    g_sceneInfo = g_sceneInfoInstance;
+  }
   initialize();
 }
 
@@ -1266,6 +1419,12 @@ function initialize() {
         var fishZClock = f.fishZClock;
         var fishPosition = fishPer.worldPosition;
         var fishNextPosition = fishPer.nextPosition;
+
+        var useInstanceRendering = wxhelper.CanUseWebGL2();
+        if (useInstanceRendering) {
+          fish.drawInstancePrep(numFish);
+        }
+
         for (var ii = 0; ii < numFish; ++ii) {
           var fishClock = fishBaseClock + ii * fishOffset;
           var speed = fishSpeed + math.pseudoRandom() * fishSpeedRange;
@@ -1296,7 +1455,19 @@ function initialize() {
           fishPer.time =
               ((clock + ii * g_tailOffsetMult) * fishTailSpeed * speed) %
               (Math.PI * 2);
-          fish.draw(fishPer);
+
+          if (useInstanceRendering) {
+            fish.worldPositionInstanceBuffer[3 * ii + 0] = fishPosition[0];
+            fish.worldPositionInstanceBuffer[3 * ii + 1] = fishPosition[1];
+            fish.worldPositionInstanceBuffer[3 * ii + 2] = fishPosition[2];
+            fish.nextPositionInstanceBuffer[3 * ii + 0] = fishNextPosition[0];
+            fish.nextPositionInstanceBuffer[3 * ii + 1] = fishNextPosition[1];
+            fish.nextPositionInstanceBuffer[3 * ii + 2] = fishNextPosition[2];
+            fish.scaleInstanceBuffer[ii] = fishPer.scale;
+            fish.timeInstanceBuffer[ii] = fishPer.time;
+          } else {
+            fish.draw(fishPer);
+          }
 
           if (g.globals.drawLasers && fishInfo.lasers) {
             fishInfo.fishData[ii] = {
@@ -1312,12 +1483,15 @@ function initialize() {
               time: fishPer.time
             };
           }
+        } // draw fish for loop
+
+        if (useInstanceRendering) {
+          fish.drawInstance(numFish);
         }
       }
     }
 
-    Log("--Fish Number: " + drawFishNum +
-      "---------------------------------------");
+    Log("--Fish Number: " + drawFishNum + "----------------------------------");
 
     if (g.options.tank.enabled) {
       if (g_sceneGroups.inner) {

@@ -145,7 +145,7 @@ var g_viewSettings = [
 
 var g = {
   globals: {
-    // 0 - 100 fishes, 1 - 200, 2 - 500, 3 - 1000
+    // 0 - 100 fishes, 1 - 200, 2 - 500, 3 - 1000, 4 - 2000
     fishSetting: 2,
     drawLasers: true,
 	  width: 1080,

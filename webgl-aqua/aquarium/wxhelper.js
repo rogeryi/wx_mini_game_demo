@@ -8,10 +8,17 @@ let WX_GAME_DEVTOOLS = false;
 let SystemInfo = null;
 let MainCanvas = null;
 
+let TRY_USE_WEBGL2 = true;
+let CAN_USE_WEBGL2 = false;
+
 if (WX_GAME_ENV) {
   SystemInfo = wx.getSystemInfoSync();
-  if (SystemInfo.platform == "devtools")
+  if (SystemInfo.platform == "devtools") {
     WX_GAME_DEVTOOLS = true;
+  } else {
+    // WeiXin not support WebGL2 API
+    TRY_USE_WEBGL2 = false;
+  }
 
   console.log("Game run in wx mini game env, devtools:" +  WX_GAME_DEVTOOLS
     + ", window:" + SystemInfo.windowWidth + "x" + SystemInfo.windowHeight
@@ -27,6 +34,9 @@ if (WX_GAME_ENV) {
 
 function IsWxGameEnv() { return WX_GAME_ENV; }
 function IsWxGameDevTools() { return WX_GAME_DEVTOOLS; }
+function TryUseWebGL2() { return TRY_USE_WEBGL2; }
+function CanUseWebGL2() { return CAN_USE_WEBGL2; }
+function SetCanUseWebGL2(can) { CAN_USE_WEBGL2 = can; }
 
 // Fxxk, wx performance.now return microsecond in device,
 // return millisecond in devtools, we return microsecond in here!
@@ -157,6 +167,9 @@ function FPSMeter() {
 let wxhelper = {
   IsWxGameEnv,
   IsWxGameDevTools,
+  TryUseWebGL2,
+  CanUseWebGL2,
+  SetCanUseWebGL2,
   Now,
   CreateImage,
   GetMainCanvas,

@@ -80,6 +80,9 @@ tdl.models.Model = function(program, arrays, textures, opt_mode) {
   this.textures = textures;
   this.textureUnits = textureUnits;
   this.setProgram(program);
+
+  this.worldPositionInstanceBufferObject = null;
+  this.worldPositionInstanceBuffer = null;
 }
 
 tdl.models.Model.prototype.setProgram = function(program) {
@@ -201,3 +204,69 @@ tdl.models.Model.prototype.draw = function() {
 
   this.drawFunc(totalComponents, startOffset);
 };
+
+tdl.models.Model.prototype.drawInstancePrep = function(num) {
+  if (this.worldPositionInstanceBufferObject == null) {
+    this.worldPositionInstanceBufferObject = gl.createBuffer();
+    this.nextPositionInstanceBufferObject = gl.createBuffer();
+    this.scaleInstanceBufferObject = gl.createBuffer();
+    this.timeInstanceBufferObject = gl.createBuffer();
+  }
+
+  if (this.worldPositionInstanceBuffer == null ||
+      this.worldPositionInstanceBuffer.length != num * 3) {
+    this.worldPositionInstanceBuffer = new Float32Array(num * 3);
+    this.nextPositionInstanceBuffer = new Float32Array(num * 3);
+    this.scaleInstanceBuffer = new Float32Array(num);
+    this.timeInstanceBuffer = new Float32Array(num);
+  }
+};
+
+tdl.models.Model.prototype.drawInstance = function(num) {
+  var buffers = this.buffers;
+  // if no indices buffer then assume drawFunc is drawArrays and thus
+  // totalComponents is the number of vertices (not indices).
+  var totalComponents = buffers.indices? buffers.indices.totalComponents(): buffers.position.numElements();
+  var startOffset = 0;
+
+  var p = this.program;
+  var wloc = p.attribLoc["aWorldPosition"];
+  var nloc = p.attribLoc["aNextPosition"];
+  var sloc = p.attribLoc["aScale"];
+  var tloc = p.attribLoc["aTime"];
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, this.worldPositionInstanceBufferObject);
+  gl.bufferData(gl.ARRAY_BUFFER, this.worldPositionInstanceBuffer, gl.DYNAMIC_DRAW);
+  gl.vertexAttribPointer(wloc, 3, gl.FLOAT, false, 12, 0);
+  gl.enableVertexAttribArray(wloc);
+  gl.vertexAttribDivisor(wloc, 1);
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, this.nextPositionInstanceBufferObject);
+  gl.bufferData(gl.ARRAY_BUFFER, this.nextPositionInstanceBuffer, gl.DYNAMIC_DRAW);
+  gl.vertexAttribPointer(nloc, 3, gl.FLOAT, false, 12, 0);
+  gl.enableVertexAttribArray(nloc);
+  gl.vertexAttribDivisor(nloc, 1);
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, this.scaleInstanceBufferObject);
+  gl.bufferData(gl.ARRAY_BUFFER, this.scaleInstanceBuffer, gl.DYNAMIC_DRAW);
+  gl.vertexAttribPointer(sloc, 1, gl.FLOAT, false, 4, 0);
+  gl.enableVertexAttribArray(sloc);
+  gl.vertexAttribDivisor(sloc, 1);
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, this.timeInstanceBufferObject);
+  gl.bufferData(gl.ARRAY_BUFFER, this.timeInstanceBuffer, gl.DYNAMIC_DRAW);
+  gl.vertexAttribPointer(tloc, 1, gl.FLOAT, false, 4, 0);
+  gl.enableVertexAttribArray(tloc);
+  gl.vertexAttribDivisor(tloc, 1);
+
+  g_drawCallCount++;
+  gl.drawElementsInstanced(this.mode, totalComponents,
+    gl.UNSIGNED_SHORT, startOffset, num);
+
+  gl.vertexAttribDivisor(wloc, 0);
+  gl.vertexAttribDivisor(nloc, 0);
+  gl.vertexAttribDivisor(sloc, 0);
+  gl.vertexAttribDivisor(tloc, 0);
+};
+
+
