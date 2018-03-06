@@ -147,7 +147,8 @@ tdl.webgl.setupWebGL = function(canvas, opt_attribs, opt_onError) {
  */
 tdl.webgl.create3DContext = function(canvas, opt_attribs) {
   if (opt_attribs === undefined) {
-    opt_attribs = {alpha:false};
+    // antialias:true enable antialias
+    opt_attribs = {alpha:false, antialias:false};
     tdl.misc.applyUrlSettings(opt_attribs, 'webgl');
   }
 
@@ -157,10 +158,8 @@ tdl.webgl.create3DContext = function(canvas, opt_attribs) {
     try {
       context = canvas.getContext("webgl2", opt_attribs);
       wxhelper.SetCanUseWebGL2(true);
-      console.log("Support webgl2");
     } catch(e) {
       wxhelper.SetCanUseWebGL2(false);
-      console.log("Cannot support webgl2");
     }
   }
 

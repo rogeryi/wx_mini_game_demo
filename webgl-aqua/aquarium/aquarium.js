@@ -955,10 +955,11 @@ function main() {
     gl = tdl.webgl.makeDebugContext(gl, undefined, LogGLCall);
   }
 
-  if (wxhelper.CanUseWebGL2()) {
-    console.log("Use instance rendering!");
+  if (wxhelper.CanUseWebGL2())
     g_sceneInfo = g_sceneInfoInstance;
-  }
+
+  console.log("Use instance rendering:" + wxhelper.CanUseWebGL2()
+    + ", antialias:" + gl.getContextAttributes()['antialias']);
   initialize();
 }
 
@@ -1238,7 +1239,7 @@ function initialize() {
   }
 
   // GetCanvasSizeUseWindowRatio can be used to try different rendering resolution
-  // let windowSize = wxhelper.GetCanvasSizeUseWindowRatio(600);
+  // let windowSize = wxhelper.GetCanvasSizeUseWindowRatio(720);
   let windowSize = wxhelper.GetWindowSizeInPx();
   setCanvasSize(canvas, windowSize.width, windowSize.height);
 
