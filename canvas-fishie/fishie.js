@@ -1,7 +1,7 @@
 var canvas;
 var ctx;                     //canvas context for drawing the fish
 var ctx3;
-var startFish = 1000;         //number of fish to start with
+var startFish = 2000;         //number of fish to start with
 var fish = [];               //array of fish
 var fishW = 100;             //fish width
 var fishH = 103;             //fish height
@@ -33,6 +33,7 @@ function createFish(max) {
 }
 
 function drawBackground() {
+    ctx3.clearRect(0, 0, WIDTH, HEIGHT);
 		ctx3.drawImage(backgroundImage, 0, 0, WIDTH, HEIGHT);
 }
 
@@ -174,10 +175,9 @@ function Fish() {
         ctx.scale(scale, scale); // make the fish bigger or smaller depending on how far away it is.
         ctx.transform(flip, 0, 0, 1, 0, 0); //make the fish face the way he's swimming.
         ctx.drawImage(imageStrip, fishW * cell, fishH * species, fishW, fishH, -fishW / 2, -fishH / 2, fishW, fishH); //draw the fish
-        ctx.save();
+        ctx.restore();
+
         scale = nextScale // increment scale for next time
-        ctx.restore();
-        ctx.restore();
 
         //increment to next state
         x = nextX;
