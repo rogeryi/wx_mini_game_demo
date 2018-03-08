@@ -172,8 +172,8 @@ function Fish() {
         //locate the fish
         ctx.save();
         ctx.translate(x, y);
-        ctx.scale(scale, scale); // make the fish bigger or smaller depending on how far away it is.
-        ctx.transform(flip, 0, 0, 1, 0, 0); //make the fish face the way he's swimming.
+        // make the fish bigger or smaller depending on how far away it is.
+        ctx.transform(flip * scale, 0, 0, scale, 0, 0); //make the fish face the way he's swimming.
         ctx.drawImage(imageStrip, fishW * cell, fishH * species, fishW, fishH, -fishW / 2, -fishH / 2, fishW, fishH); //draw the fish
         ctx.restore();
 
