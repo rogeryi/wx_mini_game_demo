@@ -1,0 +1,14 @@
+@charset "UTF-8";
+/* CSS Document */
+
+body {
+	margin :0px;
+	padding: 0px;
+	background-color: #FFFFFF;
+	font-family: Arial, Helvetica, sans-serif;
+}
+
+canvas {
+	margin :0px;
+	padding: 0px;
+}
