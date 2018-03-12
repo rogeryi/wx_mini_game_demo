@@ -1,6 +1,6 @@
 # WeiXin Mini Game Demo
 
-为了做性能对比，一共移植了四个 Demo，这些 Demo 常用于浏览器自身的 Canvas/WebGL 性能测试，包括 [GUIMark3][1] 和 [WebGL Aquarium][2]。
+为了做性能对比，一共移植了五个 Demo，这些 Demo 常用于浏览器自身的 Canvas/WebGL 性能测试，包括 [GUIMark3][1] 和 [WebGL Aquarium][2]。
 
 <div style="text-align:center; padding:20px 0px"><img src="http://img.blog.csdn.net/20180213134647414" alt="WeiXin Mini Game Demo"></img></div>
 
