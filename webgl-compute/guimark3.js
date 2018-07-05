@@ -16,7 +16,7 @@ var config = {
 	maxWanderRadius:20,
 	minWanderStep:0.1,
 	maxWanderStep:0.9,
-	numBoids:500
+	numBoids:200
 };
 
 var drawEnabled = true;
@@ -125,9 +125,10 @@ function init(){
 			return false;
 		}
 
-		requestAnimationFrame(loop);
+		wxhelper.GameLoopUtil.requestNextFrame(loop);
 	}
-	console.log("WebGL Compute init, canvas " + canvas.width + "x" + canvas.height);
+	console.log("WebGL Compute init, canvas " + canvas.width + "x" + canvas.height 
+		+ ", bords:" + boids.length + ", game mode:" + wxhelper.CanUseGameMode());
 }
 
 function createBoids(){
@@ -190,7 +191,9 @@ function loop() {
 	if (result.framerate > 0) {
 		console.log("WebGL Compute framerate: " + result.framerate + "fps");
 	}
-	requestAnimationFrame(loop);
+	
+	wxhelper.SubmitGLFrame(gl);
+	wxhelper.GameLoopUtil.requestNextFrame(loop);
 }
 
 function toggleDraw() {

@@ -8,8 +8,13 @@ let WX_GAME_DEVTOOLS = false;
 let SystemInfo = null;
 let MainCanvas = null;
 
-let TRY_USE_WEBGL2 = true;
+let TRY_USE_WEBGL2 = false;
 let CAN_USE_WEBGL2 = false;
+
+let TRY_USE_GAME_MODE = true;
+let CAN_USE_GAME_MODE = false;
+const FRAME_RATE = 60;
+const FRAME_TIME = 1000.0 / FRAME_RATE;
 
 if (WX_GAME_ENV) {
   SystemInfo = wx.getSystemInfoSync();
@@ -37,9 +42,15 @@ function IsWxGameDevTools() { return WX_GAME_DEVTOOLS; }
 function TryUseWebGL2() { return TRY_USE_WEBGL2; }
 function CanUseWebGL2() { return CAN_USE_WEBGL2; }
 function SetCanUseWebGL2(can) { CAN_USE_WEBGL2 = can; }
+function TryUseGameMode() { return TRY_USE_GAME_MODE; }
+function CanUseGameMode() { return CAN_USE_GAME_MODE; }
+function DetectCanUseGameMode(gl) {
+  if (TryUseGameMode() && gl && gl.getContextAttributes().gameMode)
+    CAN_USE_GAME_MODE = true;
+}
 
 // Fxxk, wx performance.now return microsecond in device,
-// return millisecond in devtools, we return microsecond in here!
+// return millisecond in devtools, we return millisecond in here!
 function Now() {
   if (WX_GAME_ENV) {
     if (WX_GAME_DEVTOOLS)
@@ -130,9 +141,40 @@ function GetCanvasSizeUseWindowRatio(width) {
   return {"width":width, "height":height}
 }
 
+function SubmitGLFrame(gl) {
+  if (CanUseGameMode() && gl && gl.submit) gl.submit();
+}
+
 let TimeUtil = {
   startTime: Now(),
-  getTimer: function() { return Now() - TimeUtil.startTime; }
+  getTimer: function() { return Now() - TimeUtil.startTime; },
+}
+
+let GameLoopUtil = {
+  lastTime: Now(),
+
+  requestNextFrame: function(callback) {
+    if (CanUseGameMode()) {
+      let currTime = Now();
+      let timeToCall = Math.max(0.2, FRAME_TIME - (currTime - GameLoopUtil.lastTime));
+      let id = setTimeout(function() {
+        GameLoopUtil.lastTime = Now();
+        callback();
+      }, timeToCall);
+      GameLoopUtil.lastTime = currTime + timeToCall;
+      return id;
+    } else {
+      return requestAnimationFrame(callback);
+    }
+  },
+
+  cancalNextFrame: function(id) {
+    if (CanUseGameMode()) {
+      clearTimeout(id);
+    } else {
+      cancelAnimationFrame(id);
+    }
+  }
 }
 
 function FPSMeter() {
@@ -170,13 +212,18 @@ let wxhelper = {
   TryUseWebGL2,
   CanUseWebGL2,
   SetCanUseWebGL2,
+  TryUseGameMode,
+  CanUseGameMode,
+  DetectCanUseGameMode,
   Now,
   CreateImage,
   GetMainCanvas,
   GetWindowSize,
   GetWindowSizeInPx,
   GetCanvasSizeUseWindowRatio,
+  SubmitGLFrame,
   TimeUtil,
+  GameLoopUtil,
   FPSMeter,
 };
 

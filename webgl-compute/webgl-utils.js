@@ -127,7 +127,10 @@ var setupWebGL = function(canvas, opt_attribs, opt_onError) {
           opt_onError(event.statusMessage);
         }, false);
   }
+  opt_attribs = opt_attribs || {};
+  opt_attribs.gameMode = wxhelper.TryUseGameMode();
   var context = create3DContext(canvas, opt_attribs);
+  wxhelper.DetectCanUseGameMode(context);
   if (!context) {
     if (!window.WebGLRenderingContext) {
       opt_onError("");

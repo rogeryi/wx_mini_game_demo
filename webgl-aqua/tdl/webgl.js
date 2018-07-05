@@ -107,7 +107,8 @@ tdl.webgl.setupWebGL = function(canvas, opt_attribs, opt_onError) {
       if (msg) {
         str += "<br/><br/>Status: " + msg;
       }
-      container.innerHTML = tdl.webgl.makeFailHTML(str);
+      console.log("WebGL creation error - " + str);
+      // container.innerHTML = tdl.webgl.makeFailHTML(str);
     }
   };
 
@@ -148,7 +149,7 @@ tdl.webgl.setupWebGL = function(canvas, opt_attribs, opt_onError) {
 tdl.webgl.create3DContext = function(canvas, opt_attribs) {
   if (opt_attribs === undefined) {
     // antialias:true enable antialias
-    opt_attribs = {alpha:false, antialias:false};
+    opt_attribs = {alpha:false, antialias:false, gameMode:wxhelper.TryUseGameMode()};
     tdl.misc.applyUrlSettings(opt_attribs, 'webgl');
   }
 
@@ -158,12 +159,12 @@ tdl.webgl.create3DContext = function(canvas, opt_attribs) {
     try {
       context = canvas.getContext("webgl2", opt_attribs);
       wxhelper.SetCanUseWebGL2(true);
-    } catch(e) {
-      wxhelper.SetCanUseWebGL2(false);
-    }
+    } catch(e) {}
   }
 
   if (!context) {
+    wxhelper.SetCanUseWebGL2(false);
+
     var names = ["webgl", "experimental-webgl"];
     for (var ii = 0; ii < names.length; ++ii) {
       try {
@@ -174,6 +175,9 @@ tdl.webgl.create3DContext = function(canvas, opt_attribs) {
       }
     }
   }
+
+  // Detect whether we can use game mode or not
+  wxhelper.DetectCanUseGameMode(context);
 
   if (context) {
     if (!tdl.webgl.glEnums) {

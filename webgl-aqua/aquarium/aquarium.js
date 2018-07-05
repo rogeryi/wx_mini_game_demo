@@ -959,13 +959,14 @@ function main() {
     g_sceneInfo = g_sceneInfoInstance;
 
   console.log("Use instance rendering:" + wxhelper.CanUseWebGL2()
-    + ", antialias:" + gl.getContextAttributes()['antialias']);
+    + ", antialias:" + gl.getContextAttributes()['antialias']
+    + ", game mode:" + wxhelper.CanUseGameMode());
   initialize();
 }
 
 function handleContextLost() {
   tdl.log("context lost");
-  tdl.webgl.cancelRequestAnimationFrame(g_requestId);
+  wxhelper.GameLoopUtil.cancalNextFrame(g_requestId);
   // remove loading scenes
   for (var name in g_scenes) {
     var scene = g_scenes[name];
@@ -1737,8 +1738,11 @@ function initialize() {
       resetDrawStatics();
     }
 
+    // In game mode, we need to submit frame manually
+    wxhelper.SubmitGLFrame(gl);
+
     if (!g_drawOnce) {
-      g_requestId = tdl.webgl.requestAnimationFrame(render, canvas);
+      g_requestId = wxhelper.GameLoopUtil.requestNextFrame(render);
     }
   }
   render();
