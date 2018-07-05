@@ -156,7 +156,7 @@ let GameLoopUtil = {
   requestNextFrame: function(callback) {
     if (CanUseGameMode()) {
       let currTime = Now();
-      let timeToCall = Math.max(0.2, FRAME_TIME - (currTime - GameLoopUtil.lastTime));
+      let timeToCall = Math.max(0.5, FRAME_TIME - (currTime - GameLoopUtil.lastTime));
       let id = setTimeout(function() {
         GameLoopUtil.lastTime = Now();
         callback();

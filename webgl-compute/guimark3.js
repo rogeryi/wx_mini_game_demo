@@ -83,7 +83,7 @@ function init(){
 	if (canvas && canvas.getContext) {
 		//setup page
 		// Get the rendering context for WebGL
-		gl = getWebGLContext(canvas);
+		gl = getWebGLContext(canvas, false);
 		if (!gl) {
 			console.log('Failed to get the rendering context for WebGL');
 			return;
