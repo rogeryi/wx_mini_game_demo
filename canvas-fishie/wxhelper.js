@@ -8,10 +8,22 @@ let WX_GAME_DEVTOOLS = false;
 let SystemInfo = null;
 let MainCanvas = null;
 
+let TRY_USE_WEBGL2 = false;
+let CAN_USE_WEBGL2 = false;
+
+let TRY_USE_GAME_MODE = true;
+let CAN_USE_GAME_MODE = false;
+const FRAME_RATE = 60;
+const FRAME_TIME = 1000.0 / FRAME_RATE;
+
 if (WX_GAME_ENV) {
   SystemInfo = wx.getSystemInfoSync();
-  if (SystemInfo.platform == "devtools")
+  if (SystemInfo.platform == "devtools") {
     WX_GAME_DEVTOOLS = true;
+  } else {
+    // WeiXin not support WebGL2 API
+    TRY_USE_WEBGL2 = false;
+  }
 
   console.log("Game run in wx mini game env, devtools:" +  WX_GAME_DEVTOOLS
     + ", window:" + SystemInfo.windowWidth + "x" + SystemInfo.windowHeight
@@ -27,6 +39,15 @@ if (WX_GAME_ENV) {
 
 function IsWxGameEnv() { return WX_GAME_ENV; }
 function IsWxGameDevTools() { return WX_GAME_DEVTOOLS; }
+function TryUseWebGL2() { return TRY_USE_WEBGL2; }
+function CanUseWebGL2() { return CAN_USE_WEBGL2; }
+function SetCanUseWebGL2(can) { CAN_USE_WEBGL2 = can; }
+function TryUseGameMode() { return TRY_USE_GAME_MODE; }
+function CanUseGameMode() { return CAN_USE_GAME_MODE; }
+function DetectCanUseGameMode(ctx) {
+  if (TryUseGameMode() && ctx && ctx.getContextAttributes && ctx.getContextAttributes().gameMode)
+    CAN_USE_GAME_MODE = true;
+}
 
 // Fxxk, wx performance.now return microsecond in device,
 // return millisecond in devtools, we return millisecond in here!
@@ -120,9 +141,40 @@ function GetCanvasSizeUseWindowRatio(width) {
   return {"width":width, "height":height}
 }
 
+function SubmitFrame(ctx) {
+  if (CanUseGameMode() && ctx && ctx.submit) ctx.submit();
+}
+
 let TimeUtil = {
   startTime: Now(),
-  getTimer: function() { return Now() - TimeUtil.startTime; }
+  getTimer: function() { return Now() - TimeUtil.startTime; },
+}
+
+let GameLoopUtil = {
+  lastTime: Now(),
+
+  requestNextFrame: function(callback) {
+    if (CanUseGameMode()) {
+      let currTime = Now();
+      let timeToCall = Math.max(0.5, FRAME_TIME - (currTime - GameLoopUtil.lastTime));
+      let id = setTimeout(function() {
+        GameLoopUtil.lastTime = Now();
+        callback();
+      }, timeToCall);
+      GameLoopUtil.lastTime = currTime + timeToCall;
+      return id;
+    } else {
+      return requestAnimationFrame(callback);
+    }
+  },
+
+  cancalNextFrame: function(id) {
+    if (CanUseGameMode()) {
+      clearTimeout(id);
+    } else {
+      cancelAnimationFrame(id);
+    }
+  }
 }
 
 function FPSMeter() {
@@ -166,13 +218,21 @@ function FPSMeter() {
 let wxhelper = {
   IsWxGameEnv,
   IsWxGameDevTools,
+  TryUseWebGL2,
+  CanUseWebGL2,
+  SetCanUseWebGL2,
+  TryUseGameMode,
+  CanUseGameMode,
+  DetectCanUseGameMode,
   Now,
   CreateImage,
   GetMainCanvas,
   GetWindowSize,
   GetWindowSizeInPx,
   GetCanvasSizeUseWindowRatio,
+  SubmitFrame,
   TimeUtil,
+  GameLoopUtil,
   FPSMeter,
 };
 
@@ -185,5 +245,4 @@ if (typeof window !== 'undefined') {
 } else {
   console.log("Cannot find any global object!");
 }
-
 

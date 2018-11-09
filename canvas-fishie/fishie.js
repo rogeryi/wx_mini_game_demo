@@ -1,7 +1,7 @@
 var canvas;
 var ctx;                     //canvas context for drawing the fish
 var ctx3;
-var startFish = 2000;         //number of fish to start with
+var startFish = 2000;        //number of fish to start with
 var fish = [];               //array of fish
 var fishW = 100;             //fish width
 var fishH = 103;             //fish height
@@ -34,12 +34,12 @@ function createFish(max) {
 
 function drawBackground() {
     ctx3.clearRect(0, 0, WIDTH, HEIGHT);
-		ctx3.drawImage(backgroundImage, 0, 0, WIDTH, HEIGHT);
+	ctx3.drawImage(backgroundImage, 0, 0, WIDTH, HEIGHT);
 }
 
 function draw() {
     //set velocity of fish as a function of FPS
-		var fps = fpsMeter.getFramerate();
+	var fps = fpsMeter.getFramerate();
 
     power = Math.min(fps, 60);
 		if(isNaN(power)) power = 1;
@@ -50,7 +50,7 @@ function draw() {
     // Draw each fish
     for (var fishie in fish) {
         fish[fishie].swim();
-  	}
+    }
 }
 
 function Fish() {
@@ -84,7 +84,7 @@ function Fish() {
     }
 
     // draw the fish each frame -------------------------------------------------------------------------------
-    function swim() {
+    var swim = function() {
 
         // Calculate next position of fish
         var nextX = x + xAngle * velocity * fpsMeter.getTimeDelta();
@@ -164,7 +164,6 @@ function Fish() {
 
         if (nextZ >= zFar * zFarFactor && zAngle > 0) {
             zAngle = -zAngle;
-
         }
         if (scale < .1) { scale = .1 }; //don't let fish get too tiny
 
@@ -185,7 +184,8 @@ function Fish() {
         z = nextZ;
         if (cell >= cellCount-1 || cell <= 0) { cellReverse = cellReverse * -1; } //go through each cell in the animation
         cell = cell + 1 * cellReverse; //go back down once we hit the end of the animation
-    }
+    };
+
     return {
         swim: swim
     }
@@ -225,30 +225,34 @@ function init() {
 	HEIGHT = canvas.height;
 
 	if (canvas && canvas.getContext) {
-		//setup page
-		ctx = canvas.getContext('2d');
-		ctx3 = ctx;
+        //setup page
+        let opt_attribs = {alpha:false, gameMode:wxhelper.TryUseGameMode()};
+		ctx = canvas.getContext('2d', opt_attribs);
+        ctx3 = ctx;
+
+        wxhelper.DetectCanUseGameMode(ctx);
 
 		// create fish
-    createFish(startFish);
+        createFish(startFish);
 
 		// raf to start the render loop
-		requestAnimationFrame(loop);
+		wxhelper.GameLoopUtil.requestNextFrame(loop);
 	}
 	console.log("FishIE Tank init, canvas " + canvas.width + "x" + canvas.height
-		+ ", fish number:" + startFish);
+		+ ", fish number:" + startFish + ", game mode:" + wxhelper.CanUseGameMode());
 }
 
 
-function loop() {
+function loop(time) {
 	drawBackground();
 	draw();
 
 	let result = fpsMeter.update();
 	if (result.framerate > 0) {
 		console.log("FishIE Tank framerate:" + result.framerate + "fps");
-	}
-	requestAnimationFrame(loop);
+    }
+    wxhelper.SubmitFrame(ctx);
+    wxhelper.GameLoopUtil.requestNextFrame(loop);
 }
 
 // Load assets and start the game

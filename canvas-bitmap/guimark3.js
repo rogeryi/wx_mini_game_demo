@@ -56,7 +56,9 @@ function init() {
 
 	if (canvas && canvas.getContext) {
 		//setup page
-		context = canvas.getContext('2d');
+        let opt_attribs = {alpha:false, gameMode:wxhelper.TryUseGameMode()};
+		context = canvas.getContext('2d', opt_attribs);
+		wxhelper.DetectCanUseGameMode(context);
 
 		gameTime = wxhelper.TimeUtil.getTimer() + 30000;
 
@@ -69,9 +71,10 @@ function init() {
 			shipCountRatio = 50;
 
 		// raf to start the render loop
-		requestAnimationFrame(loop);
+		wxhelper.GameLoopUtil.requestNextFrame(loop);
 	}
-	console.log("GM3 Bitmap init, canvas " + canvas.width + "x" + canvas.height);
+	console.log("GM3 Bitmap init, canvas " + canvas.width + "x" + canvas.height +
+		", game mode:" + wxhelper.CanUseGameMode());
 }
 
 
@@ -99,7 +102,8 @@ function loop() {
 			+ ", bullets:" + bulletsdrawcount
 			+ ", total draw image per frame: " + framedrawcount);
 	}
-	requestAnimationFrame(loop);
+	wxhelper.SubmitFrame(context);
+	wxhelper.GameLoopUtil.requestNextFrame(loop);
 }
 
 function drawGround(tick){
